@@ -1,0 +1,39 @@
+name: Build (ESP32)
+
+on: [push, pull_request]
+
+jobs:
+  build-binary:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout BlueBomb Micro
+      uses: actions/checkout@v4
+      with:
+        path: bluebomb_micro
+        submodules: recursive
+
+    - name: Checkout ESP-IDF
+      uses: actions/checkout@v4
+      with:
+        repository: espressif/esp-idf
+        ref: master
+        path: esp-idf
+        submodules: recursive
+
+    - name: Setup ESP-IDF
+      run: |
+        sudo apt-get install -y git wget flex bison gperf python3 python3-pip python3-venv cmake ninja-build ccache libffi-dev libssl-dev dfu-util libusb-1.0-0
+        cd ${{github.workspace}}/esp-idf
+        ./install.sh
+
+    - name: Integrate btstack
+      run: |
+        cd ${{github.workspace}}/bluebomb_micro/external/btstack/port/esp32
+        . ${{github.workspace}}/esp-idf/export.sh
+        ./integrate_btstack.py
+
+    - name: Build target
+      run: |
+        cd ${{github.workspace}}/bluebomb_micro/ports/esp32
+        . ${{github.workspace}}/esp-idf/export.sh
+        idf.py build -DBLUEBOMB_TARGET="WII_SM4_3J"

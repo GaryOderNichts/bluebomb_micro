@@ -1,0 +1,44 @@
+name: Build (Pico W)
+
+on: [push, pull_request]
+
+jobs:
+  build-binary:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout BlueBomb Micro
+      uses: actions/checkout@v4
+      with:
+        path: bluebomb_micro
+        submodules: recursive
+
+    - name: Checkout pico-sdk
+      uses: actions/checkout@v4
+      with:
+        repository: raspberrypi/pico-sdk
+        ref: master
+        path: pico-sdk
+        submodules: recursive
+
+    - name: Setup pico-sdk
+      run: |
+        sudo apt install -y cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
+
+    - name: Build all targets
+      run: |
+        export PICO_SDK_PATH=${{github.workspace}}/pico-sdk
+        cd ${{github.workspace}}/bluebomb_micro/ports/pico_w
+        ./build_all.sh
+
+    - name: Prepare artifacts
+      run: |
+        cd ${{github.workspace}}/bluebomb_micro
+        mv external/btstack/LICENSE LICENSE.btstack
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: bluebomb_micro_artifacts
+        path: |
+          ${{github.workspace}}/bluebomb_micro/ports/pico_w/build/*.uf2
+          ${{github.workspace}}/bluebomb_micro/LICENSE.btstack
