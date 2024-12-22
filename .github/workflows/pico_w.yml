@@ -41,11 +41,18 @@ jobs:
         cd ${{github.workspace}}/bluebomb_micro
         mv external/btstack/LICENSE LICENSE.btstack
 
-    - name: Upload artifacts
+    - name: Upload artifacts (Pico W)
       uses: actions/upload-artifact@v4
       with:
-        name: bluebomb_micro_artifacts
+        name: bluebomb_micro_pico_w_artifacts
         path: |
           ${{github.workspace}}/bluebomb_micro/ports/pico_w/build_pico_w/*.uf2
+          ${{github.workspace}}/bluebomb_micro/LICENSE.btstack
+
+    - name: Upload artifacts (Pico 2 W)
+      uses: actions/upload-artifact@v4
+      with:
+        name: bluebomb_micro_pico2_w_artifacts
+        path: |
           ${{github.workspace}}/bluebomb_micro/ports/pico_w/build_pico2_w/*.uf2
           ${{github.workspace}}/bluebomb_micro/LICENSE.btstack

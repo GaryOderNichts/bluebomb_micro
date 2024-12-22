@@ -5,7 +5,9 @@ This is a port of BlueBomb Micro for the Raspberry Pico W / Pico 2 W.
 - A Raspberry Pi Pico W / Pico 2 W (the non-W variant will not work).
 
 ## Using the pre-compiled binaries
-1. Download the latest binaries from the [releases](https://github.com/GaryOderNichts/bluebomb_micro/releases) page.
+1. Download the latest binaries from the [releases](https://github.com/GaryOderNichts/bluebomb_micro/releases) page.  
+    For the Pico W download the `bluebomb_micro_pico_w_vX.X.zip` file.  
+    For the Pico 2 W download the `bluebomb_micro_pico2_w_vX.X.zip` file.  
 1. Plug in your Pico W to your PC while holding down the `BOOTSEL` button.  
     Your Pico should now show up as a drive.
 1. Unzip the downloaded file and navigate to the `ports/pico_w` directory.  
