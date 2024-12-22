@@ -5,7 +5,7 @@ This is a port of [BlueBomb](https://github.com/Fullmetal5/bluebomb) for BlueKit
 Follow the guide for one of the supported systems below to set up BlueBomb Micro for your microcontroller.
 
 ### Supported systems
-- [Raspberry Pi Pico W](ports/pico_w/)
+- [Raspberry Pi Pico W / Pico 2 W](ports/pico_w/)
 - [ESP32](ports/esp32/)
 
 ### Usage
