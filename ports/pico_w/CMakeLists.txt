@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 
-# Set Board to Pico W
-set(PICO_BOARD "pico_w")
+# Set Board to Pico W, if not set
+if (NOT PICO_BOARD)
+    set(PICO_BOARD "pico_w")
+endif()
 
 # Use custom BTStack fork
 set(PICO_BTSTACK_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../external/btstack)
@@ -59,4 +61,4 @@ pico_add_extra_outputs(bluebomb)
 pico_set_program_name(bluebomb "bluebomb_micro")
 pico_set_program_description(bluebomb "BlueBomb for embedded systems")
 pico_set_program_url(bluebomb "https://github.com/GaryOderNichts/bluebomb_micro")
-pico_set_program_version(bluebomb "0")
+pico_set_program_version(bluebomb "1.1")

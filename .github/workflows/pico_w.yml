@@ -24,11 +24,17 @@ jobs:
       run: |
         sudo apt install -y cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
 
-    - name: Build all targets
+    - name: Build all targets (Pico W)
       run: |
         export PICO_SDK_PATH=${{github.workspace}}/pico-sdk
         cd ${{github.workspace}}/bluebomb_micro/ports/pico_w
-        ./build_all.sh
+        PICO_BOARD=pico_w BUILD_DIR=build_pico_w ./build_all.sh
+
+    - name: Build all targets (Pico 2 W)
+      run: |
+        export PICO_SDK_PATH=${{github.workspace}}/pico-sdk
+        cd ${{github.workspace}}/bluebomb_micro/ports/pico_w
+        PICO_BOARD=pico2_w BUILD_DIR=build_pico2_w ./build_all.sh
 
     - name: Prepare artifacts
       run: |
@@ -40,5 +46,6 @@ jobs:
       with:
         name: bluebomb_micro_artifacts
         path: |
-          ${{github.workspace}}/bluebomb_micro/ports/pico_w/build/*.uf2
+          ${{github.workspace}}/bluebomb_micro/ports/pico_w/build_pico_w/*.uf2
+          ${{github.workspace}}/bluebomb_micro/ports/pico_w/build_pico2_w/*.uf2
           ${{github.workspace}}/bluebomb_micro/LICENSE.btstack
