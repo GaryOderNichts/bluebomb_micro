@@ -491,7 +491,7 @@ CONFIG_BTDM_CTRL_HLI=y
 #
 # BTstack Configuration
 #
-CONFIG_BTSTACK_AUDIO=y
+CONFIG_BTSTACK_AUDIO=n
 # end of BTstack Configuration
 
 #
